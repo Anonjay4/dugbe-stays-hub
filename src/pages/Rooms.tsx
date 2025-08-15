@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -35,8 +36,50 @@ const Rooms = () => {
   const [priceRange, setPriceRange] = useState('all');
   const [roomType, setRoomType] = useState('all');
   const [sortBy, setSortBy] = useState('price');
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const rooms = [
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
+  const fetchRooms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*')
+        .order('price_per_night');
+      
+      if (error) throw error;
+      
+      // Transform data to match component expectations
+      const transformedRooms = data?.map(room => ({
+        id: room.id,
+        name: room.name,
+        type: room.room_type,
+        price: room.price_per_night,
+        originalPrice: room.original_price,
+        image: room.images?.[0] || '/room-deluxe.jpg',
+        capacity: room.capacity,
+        size: `${room.size_sqm} m²`,
+        beds: room.beds,
+        bathrooms: room.bathrooms,
+        rating: room.rating || 4.5,
+        reviews: room.review_count || 0,
+        discount: room.original_price ? `${Math.round((1 - room.price_per_night / room.original_price) * 100)}% OFF` : null,
+        amenities: room.amenities || [],
+        description: room.description
+      })) || [];
+      
+      setRooms(transformedRooms);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const mockRooms = [
     {
       id: 1,
       name: 'Standard Room',

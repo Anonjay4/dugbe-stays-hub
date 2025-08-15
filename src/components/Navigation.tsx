@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Home, 
   Bed, 
@@ -10,12 +11,14 @@ import {
   User,
   Menu,
   X,
-  Settings
+  Settings,
+  LogIn
 } from 'lucide-react';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, isAdmin } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -59,18 +62,31 @@ const Navigation = () => {
             
             {/* User Account & Admin */}
             <div className="flex items-center space-x-2 ml-4 pl-4 border-l border-border">
-              <Link to="/account">
-                <Button variant="elegant" size="sm">
-                  <User className="h-4 w-4" />
-                  <span className="hidden lg:inline">Account</span>
-                </Button>
-              </Link>
-              <Link to="/admin">
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4" />
-                  <span className="hidden lg:inline">Admin</span>
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/account">
+                    <Button variant="elegant" size="sm">
+                      <User className="h-4 w-4" />
+                      <span className="hidden lg:inline">Account</span>
+                    </Button>
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin">
+                      <Button variant="outline" size="sm">
+                        <Settings className="h-4 w-4" />
+                        <span className="hidden lg:inline">Admin</span>
+                      </Button>
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="hero" size="sm">
+                    <LogIn className="h-4 w-4" />
+                    <span className="hidden lg:inline">Sign In</span>
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -108,18 +124,31 @@ const Navigation = () => {
               ))}
               
               <div className="border-t border-border/50 pt-2 mt-2">
-                <Link to="/account" onClick={() => setIsOpen(false)}>
-                  <Button variant="elegant" size="sm" className="w-full justify-start mb-1">
-                    <User className="h-4 w-4 mr-3" />
-                    Account
-                  </Button>
-                </Link>
-                <Link to="/admin" onClick={() => setIsOpen(false)}>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <Settings className="h-4 w-4 mr-3" />
-                    Admin
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link to="/account" onClick={() => setIsOpen(false)}>
+                      <Button variant="elegant" size="sm" className="w-full justify-start mb-1">
+                        <User className="h-4 w-4 mr-3" />
+                        Account
+                      </Button>
+                    </Link>
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" size="sm" className="w-full justify-start">
+                          <Settings className="h-4 w-4 mr-3" />
+                          Admin
+                        </Button>
+                      </Link>
+                    )}
+                  </>
+                ) : (
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <Button variant="hero" size="sm" className="w-full justify-start">
+                      <LogIn className="h-4 w-4 mr-3" />
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
