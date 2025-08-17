@@ -25,6 +25,8 @@ import {
   X
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import RoomManagementModal from '@/components/admin/RoomManagementModal';
+import DeleteRoomDialog from '@/components/admin/DeleteRoomDialog';
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -42,6 +44,12 @@ const Admin = () => {
   });
   
   const [loadingData, setLoadingData] = useState(true);
+  
+  // Room management state
+  const [roomModalOpen, setRoomModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [deleteRoomDialogOpen, setDeleteRoomDialogOpen] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState(null);
 
   // Redirect if not admin
   if (!loading && (!user || !isAdmin)) {
@@ -169,6 +177,48 @@ const Admin = () => {
       toast({
         title: "Error",
         description: "Failed to update contact status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openAddRoomModal = () => {
+    setSelectedRoom(null);
+    setRoomModalOpen(true);
+  };
+
+  const openEditRoomModal = (room) => {
+    setSelectedRoom(room);
+    setRoomModalOpen(true);
+  };
+
+  const openDeleteRoomDialog = (room) => {
+    setRoomToDelete(room);
+    setDeleteRoomDialogOpen(true);
+  };
+
+  const toggleRoomAvailability = async (roomId, currentAvailability) => {
+    try {
+      const { error } = await supabase
+        .from('rooms')
+        .update({ is_available: !currentAvailability })
+        .eq('id', roomId);
+
+      if (error) throw error;
+
+      setRooms(prev => prev.map(room => 
+        room.id === roomId ? { ...room, is_available: !currentAvailability } : room
+      ));
+
+      toast({
+        title: "Success",
+        description: `Room ${!currentAvailability ? 'enabled' : 'disabled'} successfully`,
+      });
+    } catch (error) {
+      console.error('Error updating room availability:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update room availability",
         variant: "destructive",
       });
     }
@@ -365,7 +415,7 @@ const Admin = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Manage Rooms</CardTitle>
-                  <Button>
+                  <Button onClick={openAddRoomModal}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Room
                   </Button>
@@ -379,23 +429,45 @@ const Admin = () => {
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-semibold">{room.name}</h3>
                           <Badge variant={room.is_available ? "default" : "secondary"}>
-                            {room.is_available ? "Available" : "Occupied"}
+                            {room.is_available ? "Available" : "Disabled"}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground capitalize mb-2">
-                          {room.room_type} Room
+                          {room.room_type} Room • {room.capacity} guests
                         </p>
-                        <p className="text-lg font-bold text-primary mb-3">
-                          ₦{room.price_per_night?.toLocaleString()}/night
-                        </p>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
+                        <div className="flex items-center gap-2 mb-3">
+                          <p className="text-lg font-bold text-primary">
+                            ₦{room.price_per_night?.toLocaleString()}/night
+                          </p>
+                          {room.original_price && room.original_price > room.price_per_night && (
+                            <p className="text-sm text-muted-foreground line-through">
+                              ₦{room.original_price?.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => openEditRoomModal(room)}
+                          >
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
+                          <Button 
+                            size="sm" 
+                            variant={room.is_available ? "secondary" : "default"}
+                            onClick={() => toggleRoomAvailability(room.id, room.is_available)}
+                          >
+                            {room.is_available ? 'Disable' : 'Enable'}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => openDeleteRoomDialog(room)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       </CardContent>
@@ -498,6 +570,22 @@ const Admin = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Room Management Modal */}
+        <RoomManagementModal
+          isOpen={roomModalOpen}
+          onClose={() => setRoomModalOpen(false)}
+          room={selectedRoom}
+          onSuccess={fetchAdminData}
+        />
+
+        {/* Delete Room Dialog */}
+        <DeleteRoomDialog
+          isOpen={deleteRoomDialogOpen}
+          onClose={() => setDeleteRoomDialogOpen(false)}
+          room={roomToDelete}
+          onSuccess={fetchAdminData}
+        />
       </div>
     </div>
   );
