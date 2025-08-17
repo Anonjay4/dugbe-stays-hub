@@ -168,6 +168,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          loyalty_points: number | null
           nationality: string | null
           phone: string | null
           updated_at: string
@@ -180,6 +181,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          loyalty_points?: number | null
           nationality?: string | null
           phone?: string | null
           updated_at?: string
@@ -192,6 +194,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          loyalty_points?: number | null
           nationality?: string | null
           phone?: string | null
           updated_at?: string

@@ -156,8 +156,9 @@ const Account = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="loyalty">Loyalty Points</TabsTrigger>
             <TabsTrigger value="bookings">My Bookings</TabsTrigger>
           </TabsList>
 
@@ -287,6 +288,94 @@ const Account = () => {
                         disabled={!isEditing}
                         placeholder="Enter nationality"
                       />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Loyalty Points Tab */}
+          <TabsContent value="loyalty">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Star className="h-5 w-5 mr-2 text-primary" />
+                  Loyalty Points
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="text-center">
+                  <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-8 mb-6">
+                    <div className="text-4xl font-bold text-primary mb-2">
+                      {profile?.loyalty_points || 0}
+                    </div>
+                    <p className="text-muted-foreground">Points Available</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-semibold text-success">
+                        ₦{((profile?.loyalty_points || 0) * 10).toLocaleString()}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Reward Value</p>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-semibold text-primary">
+                        {Math.floor((profile?.loyalty_points || 0) / 100)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Free Nights Earned</p>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="text-2xl font-semibold text-warning">
+                        {100 - ((profile?.loyalty_points || 0) % 100)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Points to Next Reward</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">How to Earn Points</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">Stay & Earn</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Earn 1 point for every ₦1,000 spent on completed bookings
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">Redeem Rewards</h4>
+                      <p className="text-sm text-muted-foreground">
+                        100 points = 1 free night (up to ₦50,000 value)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Membership Tiers</h3>
+                  <div className="space-y-2">
+                    <div className={`p-3 rounded-lg border ${(profile?.loyalty_points || 0) >= 1000 ? 'bg-primary/10 border-primary' : 'bg-muted/50'}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Gold Member</span>
+                        <span className="text-sm text-muted-foreground">1,000+ points</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">15% discount on all bookings</p>
+                    </div>
+                    <div className={`p-3 rounded-lg border ${(profile?.loyalty_points || 0) >= 500 ? 'bg-secondary/10 border-secondary' : 'bg-muted/50'}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Silver Member</span>
+                        <span className="text-sm text-muted-foreground">500+ points</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">10% discount on all bookings</p>
+                    </div>
+                    <div className={`p-3 rounded-lg border ${(profile?.loyalty_points || 0) >= 100 ? 'bg-accent/10 border-accent' : 'bg-muted/50'}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Bronze Member</span>
+                        <span className="text-sm text-muted-foreground">100+ points</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">5% discount on all bookings</p>
                     </div>
                   </div>
                 </div>
