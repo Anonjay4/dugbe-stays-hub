@@ -71,7 +71,7 @@ const Navigation = () => {
                     </Button>
                   </Link>
                   {isAdmin && (
-                    <Link to="/admin">
+                    <Link to="/admin/dashboard">
                       <Button variant="outline" size="sm">
                         <Settings className="h-4 w-4" />
                         <span className="hidden lg:inline">Admin</span>
@@ -133,7 +133,7 @@ const Navigation = () => {
                       </Button>
                     </Link>
                     {isAdmin && (
-                      <Link to="/admin" onClick={() => setIsOpen(false)}>
+                      <Link to="/admin/dashboard" onClick={() => setIsOpen(false)}>
                         <Button variant="outline" size="sm" className="w-full justify-start">
                           <Settings className="h-4 w-4 mr-3" />
                           Admin

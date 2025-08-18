@@ -43,9 +43,14 @@ const RoomDetails = () => {
         .from('rooms')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Fetched room data:', data);
       setRoom(data);
     } catch (error) {
       console.error('Error fetching room details:', error);

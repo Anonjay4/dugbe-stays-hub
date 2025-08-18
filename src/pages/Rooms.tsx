@@ -48,9 +48,15 @@ const Rooms = () => {
       const { data, error } = await supabase
         .from('rooms')
         .select('*')
+        .eq('is_available', true)
         .order('price_per_night');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Fetched rooms data:', data);
       
       // Transform data to match component expectations
       const transformedRooms = data?.map(room => ({
@@ -59,7 +65,7 @@ const Rooms = () => {
         type: room.room_type,
         price: room.price_per_night,
         originalPrice: room.original_price,
-        image: room.images?.[0] || '/room-deluxe.jpg',
+        image: room.images?.[0] || roomDeluxe,
         capacity: room.capacity,
         size: `${room.size_sqm} m²`,
         beds: room.beds,
@@ -71,9 +77,12 @@ const Rooms = () => {
         description: room.description
       })) || [];
       
+      console.log('Transformed rooms:', transformedRooms);
       setRooms(transformedRooms);
     } catch (error) {
       console.error('Error fetching rooms:', error);
+      // Fallback to empty array instead of mock data
+      setRooms([]);
     } finally {
       setLoading(false);
     }
